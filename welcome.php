@@ -23,8 +23,7 @@ $adapters = $hybridauth->getConnectedAdapters();
 	<?php if ($adapters) : ?>
 		<h1>You are logged in:</h1>
 		<ul>
-			<?php foreach ($adapters as $name => $adapter) : 
-			$adapter = $adapters['Google']?>
+			<?php foreach ($adapters as $name => $adapter) : ?>
 				<li>
 					<?php if (isset($adapter->getUserProfile()->photoURL)):?>
 						<img src="<?php print $adapter->getUserProfile()->photoURL; ?>" width="100" height="100" >
