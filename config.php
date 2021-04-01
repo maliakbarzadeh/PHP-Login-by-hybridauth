@@ -13,28 +13,28 @@ $config = [
             'enabled' => true,
             'keys' => [
                 'id' => '1030529171072-oh0sg5c0gms1jv1keu86ovoehsjo8rlq.apps.googleusercontent.com',
-                'secret' => 'qt-mxTgFozORHRzXHw21Sx44',
+                'secret' => '',
             ],
         ],
 		'Facebook' => [
             'enabled' => true,
             'keys' => [
                 'id' => '252241653261886',
-                'secret' => '41145e5fdce2e230e8d687815419f465',
+                'secret' => '',
             ],
         ],
 		'Discord' => [
             'enabled' => true,
             'keys' => [
                 'id' => '826166262831775804',
-                'secret' => 'Tomc6TVfLAN6mvi4STMM7LuNYGytpSvI',
+                'secret' => '',
             ],
         ],
 		'Reddit' => [
             'enabled' => true,
             'keys' => [
                 'id' => 'sAgHGSB-p4GnPw',
-                'secret' => 'pNeTtVwhiPDFIdd-vU2niHitGg8kpA',
+                'secret' => '',
             ],
         ],
 

@@ -18,23 +18,45 @@ $adapters = $hybridauth->getConnectedAdapters();
 	<meta charset="UTF-8">
 </head>
 <body>
-	<span>
-	</span>
-	<?php if ($adapters) : ?>
-		<h1>You are logged in:</h1>
+	<?php if (isset($_SESSION)) : ?>
+	<?php
+		// Connect to MySQL
+		$servername = "localhost";
+		$username = "root";
+		$password = "";
+		$dbname = "hybridauth";
+		// Create connection
+		$conn = new mysqli($servername, $username, $password, $dbname);
+		// Check connection
+		if ($conn->connect_error) {
+		  die("Connection failed: " . $conn->connect_error);
+		}
+		$firstname='';
+		$lastname='';
+		
+		$sql="select user.id, profile.firstname, profile.lastname from user
+		inner join profile on user.id = profile.id_user
+		where user.id = '".$_SESSION['id_user']."' and user.specific_id = '".$_SESSION['specific_id']."'";
+		if ($result = $conn->query($sql)){
+			if($result->num_rows != 0){
+				$row = $result->fetch_assoc();
+				$firstname = $row['firstname'];
+				$lastname = $row['lastname'];
+			} else {
+				echo "User not found <br>";
+			}
+		} else {
+			echo "User found error: " . $conn->error;
+		}
+	?>
+		<h1>Welcome</h1>
 		<ul>
-			<?php foreach ($adapters as $name => $adapter) : ?>
 				<li>
-					<?php if (isset($adapter->getUserProfile()->photoURL)):?>
-						<img src="<?php print $adapter->getUserProfile()->photoURL; ?>" width="100" height="100" >
-					<?php endif; ?>
+					<strong><?php echo $firstname." ".$lastname; ?></strong>
+					<span>(<a href="logout.php">Log Out</a>)</span>
 				</li>
-				<li>
-					<strong><?php print $adapter->getUserProfile()->displayName; ?></strong> from
-					<i><?php print $name; ?></i>
-					<span>(<a href="<?php print $config['callback'] . "?logout={$name}"; ?>">Log Out</a>)</span>
-				</li>
-			<?php endforeach;?>
 		</ul>
 	<?php endif; ?>
+	<?php $conn->close(); ?>
 </body>
+
