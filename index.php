@@ -10,6 +10,10 @@ use Hybridauth\Hybridauth;
 
 $hybridauth = new Hybridauth($config);
 $adapters = $hybridauth->getConnectedAdapters();
+if (isset($_SESSION['id_user'])) {
+	$url='welcome.php';
+	header( "Location: $url" );
+}
 if ($adapters) {
 	$url='login.php';
 	header( "Location: $url" );

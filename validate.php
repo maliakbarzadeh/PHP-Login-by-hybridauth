@@ -40,7 +40,7 @@ if(isset($username)){
 }
 
 // Check email
-if(isset($email)){
+if(isset($email) && $email != ''){
 	$sql="select id, email from profile where email = '".$email."'";
 	if ($result = $conn->query($sql)){
 			if($result->num_rows != 0){
