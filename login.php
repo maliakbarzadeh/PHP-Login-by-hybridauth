@@ -1,16 +1,6 @@
 <?php
-// Connect to MySQL
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "hybridauth";
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-// Check connection
-if ($conn->connect_error) {
-  die("Connection failed: " . $conn->connect_error);
-}
+require 'connectSQL.php';
 
 
 require 'vendor/autoload.php';
@@ -53,7 +43,14 @@ if (isset($adapters)){
 						}
 					} else {
 						// New user registration.
-						$sp_id=uniqid('', true);
+						do{
+							$sp_id=uniqid('', true);
+							$sql="select id from user where specific_id='".$sp_id."'";
+							if(!($result = $conn->query($sql))){
+								echo "Registration error: " . $conn->error;
+							}
+							$row = $result->fetch_assoc();
+						}while($result->num_rows != 0);
 						$sql="INSERT INTO `user`(specific_id) VALUES ('".$sp_id."')";
 						if($result = $conn->query($sql)){
 							$sql="select id from user where specific_id='".$sp_id."'";
@@ -90,39 +87,43 @@ if (isset($adapters)){
 				// If the email has already been registered but the new account has not been registered.
 				$row = $result->fetch_assoc();
 				// Start the session
-				session_start();
+				if(!isset($_SESSION))
+					session_start();
 				// Set session variables
 				$_SESSION["id_user"] = $row['id'];
 				$_SESSION["specific_id"] = $row['specific_id'];
-				$url="welcome.php";
-				header( "Location: $url" );
 			}
 		} else {
 			echo "User found error: " . $conn->error;
 		}
 	} // End foreach
 } // End if check set user social
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-	if(isset($_POST['username']) & isset($_POST['password'])){
-		$username = $_POST['username'];
-		$password = $_POST['password'];
-		$sql="select id, specific_id from user where username = '".$username."' and  password = '".$password."'";
+//Login by username and password
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['loginUsername'])) { 
+	if(isset($_POST['loginUsername']) && isset($_POST['loginPassword'])){
+		$username = $_POST['loginUsername'];
+		$password = $_POST['loginPassword'];
+		$sql="select id, specific_id, password from user where username = '".$username."'";
 		if($result = $conn->query($sql)){
 			if($result->num_rows != 0){
 				$row = $result->fetch_assoc();
-				$sp_id = $row['specific_id'];
-				$sql="select * from profile where id_user = '".$row['id']."'";
-				if($result = $conn->query($sql)){
-					$row = $result->fetch_assoc();
-					// Start the session
-					session_start();
-					// Set session variables
-					$_SESSION["id_user"] = $row['id'];
-					$_SESSION["specific_id"] = $sp_id;
-					$url="welcome.php";
-					header( "Location: $url" );
+				if(crypt($password, $row['password']) === $row['password']){
+					$sp_id = $row['specific_id'];
+					$sql="select * from profile where id_user = '".$row['id']."'";
+					if($result = $conn->query($sql)){
+						$row = $result->fetch_assoc();
+						// Start the session
+						if(!isset($_SESSION))
+							session_start();
+						// Set session variables
+						$_SESSION["id_user"] = $row['id'];
+						$_SESSION["specific_id"] = $sp_id;
+						echo 'success';
+					} else {
+						echo "User found error: " . $conn->error;
+					}
 				} else {
-					echo "User found error: " . $conn->error;
+					echo 'Incorrect Password!';
 				}
 			} else {
 				echo "User not found!";
@@ -131,7 +132,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			echo "Login error: " . $conn->error;
 		}
 	} else {
-		echo "Error receiving data.<br>";
+		echo "Error receiving data.";
 	}
 }
 

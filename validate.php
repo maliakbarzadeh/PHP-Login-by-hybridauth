@@ -1,17 +1,6 @@
 <?php
+require 'connectSQL.php';
 
-// Connect to MySQL
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "hybridauth";
-
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-// Check connection
-if ($conn->connect_error) {
-  die("Connection failed: " . $conn->connect_error);
-}
 
 
 @$password = $_POST['password'];
@@ -19,35 +8,45 @@ if ($conn->connect_error) {
 @$username = $_POST['username'];
 @$email = $_POST['email'];
 
-
 // Check password
 if(isset($password) && isset($confirm_password)){
-	if($password !== $confirm_password){
+	if(strlen($password)<6 || strlen($password) > 15)
+		echo "Password length should be between 6 and 15 characters.";
+	else if($password !== $confirm_password && $confirm_password!==''){
 		echo "Does not match password!";
 	}
+	
 }
 
 // Check username
 if(isset($username)){
-	$sql="select id, username from user where username = '".$username."'";
-	if ($result = $conn->query($sql)){
-			if($result->num_rows != 0){
-				echo "This username is not available!";
-			}
-	} else {
-		echo "Check error: " . $conn->error;
+	if(strlen($username)<6 || strlen($username) > 20)
+		echo "Username length should be between 6 and 20 characters." ;
+	else {
+		$sql="select id, username from user where username = '".$username."'";
+		if ($result = $conn->query($sql)){
+				if($result->num_rows != 0){
+					echo "This username is not available!";
+				}
+		} else {
+			echo "Check error: " . $conn->error;
+		}
 	}
 }
 
 // Check email
-if(isset($email) && $email != ''){
-	$sql="select id, email from profile where email = '".$email."'";
-	if ($result = $conn->query($sql)){
-			if($result->num_rows != 0){
-				echo "This email is already registered!";
-			}
-	} else {
-		echo "Check error: " . $conn->error;
+if(isset($email)){
+	if(strlen($email) < 3 || strlen($email) > 50 || !filter_var($email, FILTER_VALIDATE_EMAIL))
+		echo "Please check your email address.";
+	else {
+		$sql="select id, email from profile where email = '".$email."'";
+		if ($result = $conn->query($sql)){
+				if($result->num_rows != 0){
+					echo "This email is already registered!";
+				}
+		} else {
+			echo "Check error: " . $conn->error;
+		}
 	}
 }
 
